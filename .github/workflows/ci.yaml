@@ -14,6 +14,9 @@ jobs:
     name: ci
     runs-on: [actuated-arm64-8cpu-16gb]
     steps:
+      - name: Reset permissions of /usr/src for runner
+        run: |
+          sudo chown -R runner:docker /usr/src
       - name: Set TARGET_ARCH
         run: |
           echo "TARGET_ARCH=$(uname -m)" >> $GITHUB_ENV
