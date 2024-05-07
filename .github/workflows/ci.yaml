@@ -1,0 +1,32 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+
+jobs:
+  ci:
+    name: ci
+    runs-on: [actuated-arm64-8cpu-16gb]
+    steps:
+      - name: Set TARGET_ARCH
+        run: |
+          echo "TARGET_ARCH=$(uname -m)" >> $GITHUB_ENV
+      - name: Set KERNEL_VERSION
+        run: |
+          echo "KERNEL_VERSION=$(uname -r)" >> $GITHUB_ENV
+      - name: Cache Kernel sources
+        id: cache-kernel-sources
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/src/linux
+          key: ${{ runner.os }}-${{ env.TARGET_ARCH }}-${{env.KERNEL_VERSION}}
+
+      - if: ${{ steps.cache-kernel-sources.outputs.cache-hit != 'true' }}
+        uses: self-actuated/get-kernel-sources@master
